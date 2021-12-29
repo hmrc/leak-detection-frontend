@@ -14,12 +14,26 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.govukfrontend.views.html.components.Text
+@import uk.gov.hmrc.leakdetectionfrontend.controllers.routes
+@import uk.gov.hmrc.leakdetectionfrontend.views.html.Main
 
-@this(layout: Layout)
+@this(main: Main)
+@(repos: List[String])(implicit request: Request[_], messages: Messages)
 
-@(pageTitle: String, heading: String, message: String)(implicit request: Request[_], messages: Messages)
-@layout(pageTitle = Some(pageTitle)) {
-    <h1 class="govuk-heading-xl">@{Text(heading).asHtml}</h1>
-    <p class="govuk-body">@{Text(message).asHtml}</p>
+@main {
+
+    <br/>
+    <h1>Repositories</h1>
+    <p>Following repositories contain potentially sensitive data</p>
+
+    <div class="list-group">
+        @repos.map { repoName =>
+        <a href="@routes.ReportsController.reportsForRepository(repoName)"
+           class="list-group-item list-group-item-action">
+            @repoName
+        </a>
+        }
+    </div>
+    <br/>
+
 }
