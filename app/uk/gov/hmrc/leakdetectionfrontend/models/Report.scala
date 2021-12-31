@@ -19,40 +19,9 @@ package uk.gov.hmrc.leakdetectionfrontend.models
 import play.api.libs.functional.syntax._
 import play.api.libs.json.Reads._
 import play.api.libs.json._
-import uk.gov.hmrc.http.StringContextOps
 
 import java.time.Instant
 
-
-final case class ResolvedLeak(ruleId: String, description: String)
-
-object ResolvedLeak {
-  implicit val format: OFormat[ResolvedLeak] = Json.format[ResolvedLeak]
-}
-
-final case class LeakResolution(
-  timestamp    : Instant,
-  commitId     : String,
-  resolvedLeaks: Seq[ResolvedLeak]
-)
-
-object LeakResolution {
-  def create(reportWithLeaks: Report, cleanReport: Report): LeakResolution = {
-    val resolvedLeaks =
-      reportWithLeaks.inspectionResults
-        .map(reportLine =>
-          ResolvedLeak(
-            ruleId      = reportLine.ruleId.getOrElse(""),
-            description = reportLine.description
-          )
-        )
-    LeakResolution(
-      timestamp     = cleanReport.timestamp,
-      commitId      = cleanReport.commitId,
-      resolvedLeaks = resolvedLeaks
-    )
-  }
-}
 
 final case class Report(
   id               : String,
@@ -100,42 +69,7 @@ object Report {
   }
 }
 
-final case class Match(start: Int, end: Int) {
-  def length: Int = end - start
-}
 
-object Match {
-   implicit val format: Format[Match] = Json.format[Match]
-}
 
-final case class MatchedResult(
-                                scope: String,
-                                lineText: String,
-                                lineNumber: Int,
-                                ruleId: String,
-                                description: String,
-                                matches: List[Match],
-                                isTruncated: Boolean = false
-                              )
 
-object MatchedResult {
-  implicit val format: Format[MatchedResult] = Json.format[MatchedResult]
-}
 
-case class Result(filePath: String, scanResults: MatchedResult)
-
-final case class ReportLine(
-  filePath   : String,
-  scope      : String,
-  lineNumber : Int,
-  urlToSource: String,
-  ruleId     : Option[String],
-  description: String,
-  lineText   : String,
-  matches    : List[Match],
-  isTruncated: Option[Boolean]
-)
-
-object ReportLine {
-  implicit val format: Format[ReportLine] = Json.format[ReportLine]
-}

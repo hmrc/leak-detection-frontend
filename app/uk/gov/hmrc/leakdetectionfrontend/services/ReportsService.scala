@@ -25,7 +25,7 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class ReportsService @Inject()(ldsConnector: LeakDetectionConnector)(implicit ec: ExecutionContext) {
 
-  def getRepositories(): Future[Seq[String]] = ldsConnector.getRepositories
+  def getRepositories: Future[Seq[String]] = ldsConnector.getRepositories
 
   def getLatestReportsForEachBranch(repository: String): Future[Seq[Report]] = ldsConnector.getLatestReportsForEachBranch(repository)
 

@@ -1,4 +1,4 @@
-@*
+/*
  * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,13 +12,20 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *@
+ */
 
-@this(layout: Layout)
+package uk.gov.hmrc.leakdetectionfrontend.models
 
-@()(implicit request: Request[_], messages: Messages)
+import play.api.libs.json.{Json, OFormat}
 
-@layout(pageTitle = Some("leak-detection-frontend")) {
-    <h1 class="govuk-heading-xl">leak-detection-frontend</h1>
-    <p class="govuk-body">@{messages("service.text")}</p>
+import java.time.Instant
+
+final case class LeakResolution(timestamp: Instant,
+                                commitId: String,
+                                resolvedLeaks: Seq[ResolvedLeak])
+
+final case class ResolvedLeak(ruleId: String, description: String)
+
+object ResolvedLeak {
+  implicit val format: OFormat[ResolvedLeak] = Json.format[ResolvedLeak]
 }

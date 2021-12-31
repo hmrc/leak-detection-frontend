@@ -40,7 +40,7 @@ class ReportsController @Inject()(config          : AppConfig,
   extends FrontendController(mcc) {
 
   def repositories: Action[AnyContent] = Action.async { implicit request =>
-    reportsService.getRepositories().map { repoNames =>
+    reportsService.getRepositories.map { repoNames =>
       render {
         case Accepts.Html() => Ok(repo_list(repoNames.toList))
         case _              => Ok(Json.toJson(repoNames))
