@@ -27,6 +27,7 @@ import uk.gov.hmrc.leakdetectionfrontend.views.html.{Main, RepoList, ReportsForR
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import uk.gov.hmrc.internalauth.client.test.{FrontendAuthComponentsStub, StubBehaviour}
 
 class ReportsControllerSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
@@ -34,9 +35,15 @@ class ReportsControllerSpec extends AnyWordSpec with Matchers with MockitoSugar 
 
     "be in json if 'application/json' Accept header was sent" in {
       val mockedReportsService = mock[ReportsService]
+      val authStubBehaviour    = mock[StubBehaviour]
+      val authComponent     = {
+                                implicit val cc = stubMessagesControllerComponents()
+                                FrontendAuthComponentsStub(authStubBehaviour)
+                              }
       val mainTemplate         = new Main()
       val controller           = new ReportsController( config           = null,
                                                         reportsService   = mockedReportsService,
+                                                        auth             = authComponent,
                                                         repo_list        = new RepoList(mainTemplate),
                                                         reports_for_repo = new ReportsForRepo(mainTemplate),
                                                         report           = new SingleReport(mainTemplate),
@@ -55,8 +62,14 @@ class ReportsControllerSpec extends AnyWordSpec with Matchers with MockitoSugar 
     "be in html if appropriate '*/*' Accept header was sent" in {
       val mockedReportsService = mock[ReportsService]
       val mainTemplate         = new Main()
+      val authStubBehaviour    = mock[StubBehaviour]
+      val authComponent     = {
+                                implicit val cc = stubMessagesControllerComponents()
+                                FrontendAuthComponentsStub(authStubBehaviour)
+                              }
       val controller           = new ReportsController( config           = null,
                                                         reportsService   = mockedReportsService,
+                                                        auth             = authComponent,
                                                         repo_list        = new RepoList(mainTemplate),
                                                         reports_for_repo = new ReportsForRepo(mainTemplate),
                                                         report           = new SingleReport(mainTemplate),
