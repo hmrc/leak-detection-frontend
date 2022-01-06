@@ -1,5 +1,5 @@
 # microservice specific routes
-
+GET        /                                            @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.redirectToRepositories
 GET        /reports                                     @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.redirectToRepositories
 GET        /reports/repositories                        @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.repositories
 GET        /reports/repositories/:repository            @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.reportsForRepository(repository: String)

@@ -42,7 +42,7 @@ class ReportsController @Inject()(config          : AppConfig,
 
   private def loggedIn(redirect: Call) = auth.authenticatedAction(redirect)
 
-  def repositories: Action[AnyContent] = Action.async { implicit request =>
+  def repositories: Action[AnyContent] = loggedIn(appRoutes.ReportsController.repositories).async { implicit request =>
     reportsService.getRepositories.map { repoNames =>
       render {
         case Accepts.Html() => Ok(repo_list(repoNames.toList))
@@ -50,7 +50,6 @@ class ReportsController @Inject()(config          : AppConfig,
       }
     }
   }
-
 
   def reportsForRepository(repository: String): Action[AnyContent] = loggedIn(appRoutes.ReportsController.reportsForRepository(repository)).async { implicit request =>
     reportsService.getLatestReportsForEachBranch(repository).map { reports =>

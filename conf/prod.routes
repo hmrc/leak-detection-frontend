@@ -1,6 +1,7 @@
 # Add all the application routes to the app.routes file
 ->         /                          app.Routes
 ->         /leak-detection            app.Routes
+
 ->         /                          health.Routes
 ->         /hmrc-frontend             hmrcfrontend.Routes
 

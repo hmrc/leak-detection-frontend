@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ import org.scalatest.wordspec.AnyWordSpec
 import play.api.libs.json.Json
 import play.api.test.Helpers._
 import play.api.test.{FakeRequest, Helpers}
+import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.internalauth.client.Retrieval
 import uk.gov.hmrc.leakdetectionfrontend.services.ReportsService
 import uk.gov.hmrc.leakdetectionfrontend.views.html.{Main, RepoList, ReportsForRepo, SingleReport}
 
@@ -33,55 +35,65 @@ class ReportsControllerSpec extends AnyWordSpec with Matchers with MockitoSugar 
 
   "Reports list" should {
 
-    "be in json if 'application/json' Accept header was sent" in {
+    "forward to internal-auth-frontend when not logged in" in {
       val mockedReportsService = mock[ReportsService]
-      val authStubBehaviour    = mock[StubBehaviour]
-      val authComponent     = {
-                                implicit val cc = stubMessagesControllerComponents()
-                                FrontendAuthComponentsStub(authStubBehaviour)
-                              }
-      val mainTemplate         = new Main()
-      val controller           = new ReportsController( config           = null,
-                                                        reportsService   = mockedReportsService,
-                                                        auth             = authComponent,
-                                                        repo_list        = new RepoList(mainTemplate),
-                                                        reports_for_repo = new ReportsForRepo(mainTemplate),
-                                                        report           = new SingleReport(mainTemplate),
-                                                        mcc              = stubMessagesControllerComponents())
-      val request              = FakeRequest().withHeaders("Accept" -> "application/json")
-      val repos                = List("repo1", "repo2")
+      val authStubBehaviour = mock[StubBehaviour]
+      val authComponent = {
+        implicit val cc = stubMessagesControllerComponents()
+        FrontendAuthComponentsStub(authStubBehaviour)
+      }
+      val mainTemplate = new Main()
+      val controller = new ReportsController(config = null,
+        reportsService = mockedReportsService,
+        auth = authComponent,
+        repo_list = new RepoList(mainTemplate),
+        reports_for_repo = new ReportsForRepo(mainTemplate),
+        report = new SingleReport(mainTemplate),
+        mcc = stubMessagesControllerComponents())
+      val request = FakeRequest().withHeaders("Accept" -> "application/json")
+      val repos = List("repo1", "repo2")
       when(mockedReportsService.getRepositories).thenReturn(Future(repos))
 
       val result = controller.repositories(request)
 
-      Helpers.status(result)        shouldBe 200
-      Helpers.contentType(result)   shouldBe Some("application/json")
-      Helpers.contentAsJson(result) shouldBe Json.toJson(repos)
+      Helpers.status(result) shouldBe 303
+      Helpers.header("Location", result) shouldBe Some("/internal-auth-frontend/sign-in?continue_url=%2Freports%2Frepositories")
     }
 
-    "be in html if appropriate '*/*' Accept header was sent" in {
+
+    "shows a list of outstanding reports when logged in" in {
       val mockedReportsService = mock[ReportsService]
-      val mainTemplate         = new Main()
-      val authStubBehaviour    = mock[StubBehaviour]
-      val authComponent     = {
-                                implicit val cc = stubMessagesControllerComponents()
-                                FrontendAuthComponentsStub(authStubBehaviour)
-                              }
-      val controller           = new ReportsController( config           = null,
-                                                        reportsService   = mockedReportsService,
-                                                        auth             = authComponent,
-                                                        repo_list        = new RepoList(mainTemplate),
-                                                        reports_for_repo = new ReportsForRepo(mainTemplate),
-                                                        report           = new SingleReport(mainTemplate),
-                                                        mcc              = stubMessagesControllerComponents())
-      val request              = FakeRequest().withHeaders("Accept" -> "*/*")
-      val repos                = List("repo1", "repo2")
+      val authStubBehaviour = mock[StubBehaviour]
+      val authComponent = {
+        implicit val cc = stubMessagesControllerComponents()
+        FrontendAuthComponentsStub(authStubBehaviour)
+      }
+      val mainTemplate = new Main()
+      val controller = new ReportsController(config = null,
+        reportsService = mockedReportsService,
+        auth = authComponent,
+        repo_list = new RepoList(mainTemplate),
+        reports_for_repo = new ReportsForRepo(mainTemplate),
+        report = new SingleReport(mainTemplate),
+        mcc = stubMessagesControllerComponents())
+
+      val request = FakeRequest().withSession(SessionKeys.authToken -> "Token token")
+      when(authStubBehaviour.stubAuth(None, Retrieval.EmptyRetrieval)).thenReturn(Future.unit)
+
+      val repos = List("repo1", "repo2")
       when(mockedReportsService.getRepositories).thenReturn(Future(repos))
 
-      val result = controller.repositories(request)
+      when(
+        authStubBehaviour.stubAuth(
+          None,
+          Retrieval.EmptyRetrieval
+        )
+      ).thenReturn(Future.unit)
 
-      Helpers.status(result)      shouldBe 200
-      Helpers.contentType(result) shouldBe Some("text/html")
+
+      val result = controller.repositories(request)
+      Helpers.status(result) shouldBe 200
+
     }
   }
 }
