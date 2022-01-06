@@ -17,8 +17,6 @@
 package uk.gov.hmrc.leakdetectionfrontend.connectors
 
 import uk.gov.hmrc.http.{HeaderCarrier, HttpClient, StringContextOps}
-import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
-import uk.gov.hmrc.leakdetectionfrontend.controllers.routes
 import uk.gov.hmrc.leakdetectionfrontend.models.Report
 import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
@@ -26,18 +24,14 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class LeakDetectionConnector @Inject()(auth          : FrontendAuthComponents,
-                                       http          : HttpClient,
-                                       servicesConfig: ServicesConfig,
+class LeakDetectionConnector @Inject()(
+                                        http          : HttpClient,
+                                        servicesConfig: ServicesConfig,
                                       )(implicit val ec: ExecutionContext) {
 
-  private val baseUrl = servicesConfig.baseUrl("leak-detection")
-
   private implicit val hc = HeaderCarrier()
-
   private implicit val rptf = Report.apiFormat
-
-
+  private val baseUrl = servicesConfig.baseUrl("leak-detection")
 
   def getRepositories: Future[Seq[String]] = http.GET[Seq[String]](url"$baseUrl/api/repository")
 
