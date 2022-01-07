@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,29 +17,32 @@
 package uk.gov.hmrc.leakdetectionfrontend.controllers
 
 import com.google.inject.Inject
-
-import javax.inject.Singleton
+import play.api.i18n.I18nSupport
 import play.api.libs.json.Json
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import uk.gov.hmrc.internalauth.client.FrontendAuthComponents
 import uk.gov.hmrc.leakdetectionfrontend.config.AppConfig
-import uk.gov.hmrc.leakdetectionfrontend.models.Report
+import uk.gov.hmrc.leakdetectionfrontend.controllers.{routes => appRoutes}
 import uk.gov.hmrc.leakdetectionfrontend.services.ReportsService
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.leakdetectionfrontend.controllers.{routes => appRoutes}
 
+import javax.inject.Singleton
 import scala.concurrent.ExecutionContext
 
 @Singleton
 class ReportsController @Inject()(config          : AppConfig,
                                   reportsService  : ReportsService,
+                                  auth            : FrontendAuthComponents,
                                   repo_list       : uk.gov.hmrc.leakdetectionfrontend.views.html.RepoList,
                                   reports_for_repo: uk.gov.hmrc.leakdetectionfrontend.views.html.ReportsForRepo,
                                   report          : uk.gov.hmrc.leakdetectionfrontend.views.html.SingleReport,
                                   mcc             : MessagesControllerComponents)(
                                   implicit ec: ExecutionContext)
-  extends FrontendController(mcc) {
+  extends FrontendController(mcc) with I18nSupport {
 
-  def repositories: Action[AnyContent] = Action.async { implicit request =>
+  private def loggedIn(redirect: Call) = auth.authenticatedAction(redirect)
+
+  def repositories: Action[AnyContent] = loggedIn(appRoutes.ReportsController.repositories).async { implicit request =>
     reportsService.getRepositories.map { repoNames =>
       render {
         case Accepts.Html() => Ok(repo_list(repoNames.toList))
@@ -48,7 +51,7 @@ class ReportsController @Inject()(config          : AppConfig,
     }
   }
 
-  def reportsForRepository(repository: String): Action[AnyContent] = Action.async { implicit request =>
+  def reportsForRepository(repository: String): Action[AnyContent] = loggedIn(appRoutes.ReportsController.reportsForRepository(repository)).async { implicit request =>
     reportsService.getLatestReportsForEachBranch(repository).map { reports =>
       Ok(reports_for_repo(repository, reports))
     }
@@ -58,7 +61,7 @@ class ReportsController @Inject()(config          : AppConfig,
     Redirect(appRoutes.ReportsController.repositories)
   }
 
-  def showReport(reportId: String): Action[AnyContent] = Action.async { implicit request =>
+  def showReport(reportId: String): Action[AnyContent] = loggedIn(appRoutes.ReportsController.showReport(reportId)).async { implicit request =>
     reportsService.getReport(reportId)
       .map(_
         .map { r =>

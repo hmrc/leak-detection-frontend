@@ -1,5 +1,5 @@
 /*
- * Copyright 2021 HM Revenue & Customs
+ * Copyright 2022 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,15 +24,14 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class LeakDetectionConnector @Inject()(  http          : HttpClient,
-                                         servicesConfig: ServicesConfig,
+class LeakDetectionConnector @Inject()(
+                                        http          : HttpClient,
+                                        servicesConfig: ServicesConfig,
                                       )(implicit val ec: ExecutionContext) {
 
-  private val baseUrl = servicesConfig.baseUrl("leak-detection")
-
   private implicit val hc = HeaderCarrier()
-
   private implicit val rptf = Report.apiFormat
+  private val baseUrl = servicesConfig.baseUrl("leak-detection")
 
   def getRepositories: Future[Seq[String]] = http.GET[Seq[String]](url"$baseUrl/api/repository")
 
