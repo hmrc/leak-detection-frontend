@@ -27,5 +27,6 @@ class AppConfig @Inject()
   val welshLanguageSupportEnabled: Boolean = config.getOptional[Boolean]("features.welsh-language-support").getOrElse(false)
 
   val leakResolutionUrl: String = config.get[String]("resolution-url")
-  
+
+  val catalogueUrl: String = config.get[String]("catalogue-url")
 }

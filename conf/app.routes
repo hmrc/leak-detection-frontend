@@ -1,8 +1,8 @@
 # microservice specific routes
-GET        /                                            @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.redirectToRepositories
-GET        /reports                                     @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.redirectToRepositories
-GET        /reports/repositories                        @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.repositories
-GET        /reports/repositories/:repository            @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.reportsForRepository(repository: String)
-GET        /reports/:id                                 @uk.gov.hmrc.leakdetectionfrontend.controllers.ReportsController.showReport(id: String)
+GET        /                                            @uk.gov.hmrc.leakdetectionfrontend.controllers.RedirectController.sendToCatalogueRepositories()
+GET        /reports                                     @uk.gov.hmrc.leakdetectionfrontend.controllers.RedirectController.sendToCatalogueRepositories()
+GET        /reports/repositories                        @uk.gov.hmrc.leakdetectionfrontend.controllers.RedirectController.sendToCatalogueRepositories()
+GET        /reports/repositories/:repository            @uk.gov.hmrc.leakdetectionfrontend.controllers.RedirectController.sendToCatalogueRepository(repository: String)
+GET        /reports/:id                                 @uk.gov.hmrc.leakdetectionfrontend.controllers.RedirectController.sendToCatalogueReport(id: String)
 
 GET        /assets/*file                                controllers.Assets.at(path="/public", file)
