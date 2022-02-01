@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.leakdetectionfrontend.controllers
 
-import play.api.mvc.{ControllerComponents, MessagesControllerComponents}
+import play.api.mvc.MessagesControllerComponents
 import uk.gov.hmrc.http.StringContextOps
 import uk.gov.hmrc.leakdetectionfrontend.config.AppConfig
 import uk.gov.hmrc.leakdetectionfrontend.connectors.LeakDetectionConnector
@@ -43,7 +43,7 @@ class RedirectController @Inject()(config: AppConfig,
       report    <- leakDetectionConnector.getReport(reportId)
       repoName   = report.map(_.repoName)
       branchName = report.map(_.branch)
-      url        = repoName.map(rn => url"${config.catalogueUrl}/$rn/${branchName.getOrElse("main")}".toString)
+      url        = repoName.map(repo => url"${config.catalogueUrl}leak-detection/repositories/$repo/${branchName.getOrElse("main")}".toString)
       fallback   = url"${config.catalogueUrl}/leak-detection/repositories".toString
     } yield Redirect(url.getOrElse(fallback))
   }
