@@ -43,7 +43,7 @@ class RedirectController @Inject()(config: AppConfig,
       report    <- leakDetectionConnector.getReport(reportId)
       repoName   = report.map(_.repoName)
       branchName = report.map(_.branch)
-      url        = repoName.map(repo => url"${config.catalogueUrl}leak-detection/repositories/$repo/${branchName.getOrElse("main")}".toString)
+      url        = repoName.map(repo => url"${config.catalogueUrl}/leak-detection/repositories/$repo/${branchName.getOrElse("main")}".toString)
       fallback   = url"${config.catalogueUrl}/leak-detection/repositories".toString
     } yield Redirect(url.getOrElse(fallback))
   }
