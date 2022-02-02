@@ -31,8 +31,6 @@ final case class Report(
   branch           : String,
   timestamp        : Instant,
   author           : String,
-  inspectionResults: Seq[ReportLine],
-  leakResolution   : Option[LeakResolution]
 )
 
 object Report {
@@ -50,12 +48,6 @@ object Report {
 
 
   private def reportFormat(implicit instantFormat: Format[Instant]): OFormat[Report] = {
-    implicit val leakResolutionFormat: Format[LeakResolution] =
-      ( (__ \ "timestamp"    ).format[Instant]
-      ~ (__ \ "commitId"     ).format[String]
-      ~ (__ \ "resolvedLeaks").format[Seq[ResolvedLeak]]
-      )(LeakResolution.apply, unlift(LeakResolution.unapply))
-
     ( (__ \ "_id"              ).format[String]
     ~ (__ \ "repoName"         ).format[String]
     ~ (__ \ "repoUrl"          ).format[String]
@@ -63,8 +55,6 @@ object Report {
     ~ (__ \ "branch"           ).format[String]
     ~ (__ \ "timestamp"        ).format[Instant]
     ~ (__ \ "author"           ).format[String]
-    ~ (__ \ "inspectionResults").format[Seq[ReportLine]]
-    ~ (__ \ "leakResolution"   ).formatNullable[LeakResolution]
     )(Report.apply, unlift(Report.unapply))
   }
 }

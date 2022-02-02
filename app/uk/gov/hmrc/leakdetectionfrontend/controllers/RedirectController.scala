@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.leakdetectionfrontend.controllers
 
-import play.api.mvc.MessagesControllerComponents
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.StringContextOps
 import uk.gov.hmrc.leakdetectionfrontend.config.AppConfig
 import uk.gov.hmrc.leakdetectionfrontend.connectors.LeakDetectionConnector
@@ -29,16 +29,16 @@ class RedirectController @Inject()(config: AppConfig,
                                    leakDetectionConnector: LeakDetectionConnector,
                                    cc: MessagesControllerComponents)(implicit ec: ExecutionContext) extends FrontendController(cc){
 
-  def sendToCatalogueRepositories() = Action {
+  def sendToCatalogueRepositories(): Action[AnyContent] = Action {
     Redirect(url"${config.catalogueUrl}/leak-detection/repositories".toString)
   }
 
 
-  def sendToCatalogueRepository(repoName:String) = Action {
+  def sendToCatalogueRepository(repoName:String): Action[AnyContent] = Action {
     Redirect(url"${config.catalogueUrl}/leak-detection/repositories/$repoName".toString)
   }
 
-  def sendToCatalogueReport(reportId:String) = Action.async { implicit request =>
+  def sendToCatalogueReport(reportId:String): Action[AnyContent] = Action.async { implicit request =>
     for {
       report    <- leakDetectionConnector.getReport(reportId)
       repoName   = report.map(_.repoName)
