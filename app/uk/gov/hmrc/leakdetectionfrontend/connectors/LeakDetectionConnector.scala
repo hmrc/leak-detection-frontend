@@ -24,20 +24,13 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class LeakDetectionConnector @Inject()(
-                                        http          : HttpClient,
-                                        servicesConfig: ServicesConfig,
+class LeakDetectionConnector @Inject()(http          : HttpClient,
+                                       servicesConfig: ServicesConfig,
                                       )(implicit val ec: ExecutionContext) {
 
-  private implicit val hc = HeaderCarrier()
+  private implicit val hc   = HeaderCarrier()
   private implicit val rptf = Report.apiFormat
-  private val baseUrl = servicesConfig.baseUrl("leak-detection")
-
-  def getRepositories: Future[Seq[String]] = http.GET[Seq[String]](url"$baseUrl/api/repository")
-
-  def getLatestReportsForEachBranch(repository: String): Future[Seq[Report]] = http.GET[Seq[Report]](url"$baseUrl/api/repository/$repository/latest")
-
-  def getLatestReportForDefaultBranch(repository: String): Future[Option[Report]] = http.GET[Option[Report]](url"$baseUrl/api/repository/$repository/default/latest")
+  private val baseUrl       = servicesConfig.baseUrl("leak-detection")
 
   def getReport(reportId: String): Future[Option[Report]] = http.GET[Option[Report]](url"$baseUrl/api/report/$reportId")
 

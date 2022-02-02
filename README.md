@@ -1,7 +1,12 @@
 
 # leak-detection-frontend
 
-This is a placeholder README.md for a new repository
+This service briefly existed as a stand-alone version of the leak-detection UI.
+
+Functionality has been moved into Catalogue-frontend. 
+
+`leak-detection-frontend` exists only to foward requests to the old UI to the new one in catalogue.
+
 
 ### License
 
